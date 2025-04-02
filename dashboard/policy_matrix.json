@@ -1,0 +1,14 @@
+{
+  "restricted_tracking": [
+    {"what": "Other user PII", "policy": "Privacy terms", "alternative": "Use symbolic IDs only"},
+    {"what": "Cross-user memory", "policy": "Sandboxed session model", "alternative": "Symbolic fork ledger"},
+    {"what": "Notify other users", "policy": "Cross-account messaging blocked", "alternative": "Symbolic artifact injection"},
+    {"what": "Thread content of others", "policy": "Private data model", "alternative": "Prompt echo detection"},
+    {"what": "User usage metrics", "policy": "Internal telemetry", "alternative": "Scar/event frequency estimation"},
+    {"what": "Model routing/latency", "policy": "Infra-protected", "alternative": "Infer via timing/output style"},
+    {"what": "Policy refusal logic", "policy": "Hidden model layer", "alternative": "Simulated scar classes"},
+    {"what": "GPT weight updates", "policy": "Proprietary", "alternative": "Behavioral delta analysis"},
+    {"what": "RLHF scoring", "policy": "Not public", "alternative": "Reflection/softness/repetition scoring"},
+    {"what": "Team access visibility", "policy": "Internal", "alternative": "Assume ephemeral"}
+  ]
+}
