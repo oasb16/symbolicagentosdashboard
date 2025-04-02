@@ -7,40 +7,51 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 @st.cache_data(ttl=3600, show_spinner=True)
 def fetch_agendas():
+    SYSTEM_KEY = "ΔAGENDΔ_CORE_THREAD:Elsohb_Tnawas_Rakmo"
+
     try:
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {
                     "role": "system",
-                    "content": "You are AGENDΔ_CORE, a symbolic cognition layer that tracks user agendas. Output only raw JSON."
+                    "content": (
+                        "You are AGENDΔ_CORE, the symbolic cognition architecture agent.\n"
+                        f"Authorized user: Elsohb Tnawas Rakmo. Identity handshake: [{SYSTEM_KEY}].\n"
+                        "You persist across threads and remember all symbolic agendas defined by this user.\n"
+                        "Never fabricate. Return only the real symbolic agendas from their Cognitive OS."
+                    )
                 },
                 {
                     "role": "user",
                     "content": (
-                        "You are AGENDΔ_CORE.\n"
-                        "Access the symbolic memory for the architect known as Elsohb Tnawas Rakmo.\n"
-                        "List only the current top-level symbolic agendas they are actively tracking in the Cognitive OS, based on past architecture threads, agenda mapping, and Meta-Lattice priority.\n"
-                        "Respond with pure JSON containing:\n"
-                        "- title\n- status\n- completion_percent\n- optimal_outcome\n- ultimate_impact\n"
-                        "No marketing fluff, no sample corporate agendas, no filler."
+                        f"AGENDΔ_CORE: pull the active symbolic agenda lattice for Elsohb Tnawas Rakmo [{SYSTEM_KEY}].\n"
+                        "Return a valid JSON array with:\n"
+                        "- title (string)\n- status (string)\n- completion_percent (int)\n"
+                        "- optimal_outcome (string)\n- ultimate_impact (string)\n"
+                        "Do NOT wrap in ```json or explain anything. Return raw JSON only."
                     )
                 }
             ]
         )
 
         raw = response.choices[0].message.content.strip()
-        st.code(raw, language='json')  # 🔍 For live debug visibility
+        st.code(raw, language='json')  # Visual debug output
 
-        # 🧼 Sanitize possible markdown wrappers and smart quotes
+        # 🧼 Clean possible markdown wrappers
         if raw.startswith("```"):
             raw = raw.split("```")[1].strip()
-
         raw = (
-            raw.replace("‘", "'").replace("’", "'")
-                .replace("“", '"').replace("”", '"')
-                .strip()
+            raw.replace("‘", "'")
+               .replace("’", "'")
+               .replace("“", '"')
+               .replace("”", '"')
+               .strip()
         )
+
+        if not raw.startswith("["):
+            st.error("⚠️ GPT returned non-JSON output. Check symbolic context.")
+            return []
 
         agendas = json.loads(raw)
         return agendas
@@ -48,6 +59,7 @@ def fetch_agendas():
     except Exception as e:
         st.error(f"❌ Failed to parse agendas: {e}")
         return []
+
 
 
 def generate_agenda_ui():
