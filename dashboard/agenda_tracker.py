@@ -33,6 +33,8 @@ def fetch_agendas():
 
         raw = response.choices[0].message.content.strip()
 
+        st.write(raw)
+
         # Clean GPT output
         if raw.startswith("```"):
             raw = raw.split("```")[1]
