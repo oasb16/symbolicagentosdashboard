@@ -63,11 +63,12 @@ def generate_agenda_ui():
 
             # Optional GPT detail fetch
             if st.button(f"🔍 More on '{agenda['title']}'", key=agenda['title']):
-                detail = openai.ChatCompletion.create(
-                    model="gpt-4",
+                detail = openai.chat.completions.create(
+                    model="gpt-4o",
                     messages=[
                         {"role": "system", "content": "You are AGENDΔ_CORE"},
                         {"role": "user", "content": f"Give me full symbolic context on agenda: {agenda['title']}"}
                     ]
-                )['choices'][0]['message']['content']
-                st.markdown(detail)
+                )
+                detail_respo = detail.choices[0].message.content.strip()
+                st.markdown(detail_respo)
