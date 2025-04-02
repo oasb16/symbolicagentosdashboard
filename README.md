@@ -21,3 +21,9 @@ This is the AGENDΔ_CORE symbolic agenda dashboard for tracking and prioritizing
 - `dashboard/data/agendas.json`: All agenda data
 - `dashboard/app.py`: Main Streamlit app
 - `.streamlit/config.toml`: Config for Streamlit Cloud
+
+## 🧠 AGENDΔ_CORE Tracker
+
+This dashboard fetches live agenda state using OpenAI GPT via your `OPENAI_API_KEY`.
+
+## 🔐 Secrets (on Streamlit Cloud settings)
