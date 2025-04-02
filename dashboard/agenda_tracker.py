@@ -30,7 +30,7 @@ def fetch_agendas():
         )
 
         raw = response.choices[0].message.content.strip()
-        # st.code(raw, language='json')  # 🔍 For live debug visibility
+        st.code(raw, language='json')  # 🔍 For live debug visibility
 
         # 🧼 Sanitize possible markdown wrappers and smart quotes
         if raw.startswith("```"):
