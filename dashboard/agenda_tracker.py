@@ -15,7 +15,7 @@ def fetch_agendas():
         ]
     )
     try:
-        print(f"response.choices[0].message.content : {response.choices[0].message.content}")
+        st.write(response.choices[0].message.content)
         agendas = json.loads(response.choices[0].message.content)
         return agendas
     except Exception as e:
