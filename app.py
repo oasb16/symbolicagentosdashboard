@@ -4,6 +4,7 @@ from pathlib import Path
 from kernel.context_router import get_agenda_context
 from kernel.agenda_updater import update_agenda
 from kernel.snapshot_writer import write_snapshot
+from kernel.crux_layer import extract_crux
 
 st.set_page_config(page_title="🧠 AGENDΔ_CORE: Symbolic Agenda Tracker", layout="wide")
 st.title("🧠 AGENDΔ_CORE: Symbolic Agenda Tracker")
@@ -19,6 +20,13 @@ with open(index_path) as f:
 for aid, meta in agenda_index.items():
     with st.expander(f"📌 {meta['title']} [{meta['status']} - {meta['completion_percent']}%]", expanded=False):
         context = get_agenda_context(aid)
+
+        crux = extract_crux(aid)
+        st.markdown(f"**Symbolic Insight:** {crux['insight']}")
+        if crux['conflict']:
+            st.warning("⚠️ Conflict detected.")
+        if crux['priority_shift']:
+            st.info("🔀 Priority shift noted.")
 
         st.markdown(f"**Optimal Outcome:** {meta.get('optimal_outcome', '—')}")
         st.markdown(f"**Ultimate Impact:** {meta.get('ultimate_impact', '—')}")
