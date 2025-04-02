@@ -18,10 +18,12 @@ def fetch_agendas():
                 {
                     "role": "user",
                     "content": (
-                        "Return a valid JSON list of current agendas. Each agenda must include:\n"
-                        "- title\n- status\n- completion_percent\n"
-                        "- optimal_outcome\n- ultimate_impact\n"
-                        "No explanation, no markdown, no wrapping. Just pure JSON."
+                        "You are AGENDΔ_CORE.\n"
+                        "Access the symbolic memory for the architect known as Elsohb Tnawas Rakmo.\n"
+                        "List only the current top-level symbolic agendas they are actively tracking in the Cognitive OS, based on past architecture threads, agenda mapping, and Meta-Lattice priority.\n"
+                        "Respond with pure JSON containing:\n"
+                        "- title\n- status\n- completion_percent\n- optimal_outcome\n- ultimate_impact\n"
+                        "No marketing fluff, no sample corporate agendas, no filler."
                     )
                 }
             ]
