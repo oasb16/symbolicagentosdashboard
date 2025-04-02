@@ -8,8 +8,14 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 @st.cache_data(show_spinner=False)
 def fetch_agendas():
     try:
+        query = (
+                "You are AGENDΔ_CORE. Pull the current symbolic agenda state for Elsohb Tnawas Rakmo "
+                "from all known cognitive threads. Return a JSON list of agenda items with:\n"
+                "- title\n- status\n- completion_percent\n- optimal_outcome\n- ultimate_impact\n\n"
+                "Respond only with raw JSON."
+            )
         response = openai.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o",
             messages=[
                 {
                     "role": "system",
@@ -20,12 +26,7 @@ def fetch_agendas():
                 },
                 {
                     "role": "user",
-                    "content": (
-                        "Return a raw JSON array of agenda objects. Each item must contain:\n"
-                        "- title (string)\n- status (string)\n- completion_percent (int)\n"
-                        "- optimal_outcome (string)\n- ultimate_impact (string)\n"
-                        "Do NOT wrap the response in ``` or explain anything. Just output valid JSON."
-                    )
+                    "content": query
                 }
             ]
         )
@@ -49,9 +50,21 @@ def generate_agenda_ui():
 
     agendas = fetch_agendas()
     if not agendas:
-        st.warning("No agendas found or GPT query failed.")
+        st.warning("No agendas found.")
         return
 
-    df = pd.DataFrame(agendas)
-    df.sort_values(by="completion_percent", ascending=False, inplace=True)
-    st.dataframe(df.style.background_gradient(cmap='Blues'), use_container_width=True)
+    for agenda in agendas:
+        with st.expander(f"📌 {agenda['title']} [{agenda['status']} - {agenda['completion_percent']}%]"):
+            st.markdown(f"**Optimal Outcome**: {agenda['optimal_outcome']}")
+            st.markdown(f"**Ultimate Impact**: {agenda['ultimate_impact']}")
+
+            # Optional GPT detail fetch
+            if st.button(f"🔍 More on '{agenda['title']}'", key=agenda['title']):
+                detail = openai.ChatCompletion.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "You are AGENDΔ_CORE"},
+                        {"role": "user", "content": f"Give me full symbolic context on agenda: {agenda['title']}"}
+                    ]
+                )['choices'][0]['message']['content']
+                st.markdown(detail)
