@@ -34,7 +34,6 @@ def fetch_agendas():
         raw = response.choices[0].message.content.strip()
 
         # Clean GPT output
-        raw = res['choices'][0]['message']['content'].strip()
         if raw.startswith("```"):
             raw = raw.split("```")[1]
         raw = raw.replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"')
