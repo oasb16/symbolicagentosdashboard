@@ -5,6 +5,8 @@ import json
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
+import re
+
 @st.cache_data(ttl=3600, show_spinner=True)
 def fetch_agendas():
     SYSTEM_KEY = "ΔAGENDΔ_CORE_THREAD:Elsohb_Tnawas_Rakmo"
@@ -29,32 +31,38 @@ def fetch_agendas():
                         "Return a valid JSON array with:\n"
                         "- title (string)\n- status (string)\n- completion_percent (int)\n"
                         "- optimal_outcome (string)\n- ultimate_impact (string)\n"
-                        "Do NOT wrap in ```json or explain anything. Return raw JSON only."
+                        "Do NOT wrap in markdown (```json). Return raw JSON only."
                     )
                 }
             ]
         )
 
         raw = response.choices[0].message.content.strip()
-        st.code(raw, language='json')  # Visual debug output
+        st.code(raw, language='json')  # Debug visibility
 
-        # 🧼 Clean possible markdown wrappers
-        if raw.startswith("```"):
-            raw = raw.split("```")[1].strip()
+        # 🚫 Remove all code block fences like ```json ... ```
+        raw = re.sub(r"```(?:json)?\n?", "", raw).strip("` \n")
+
+        # 🧼 Normalize quote characters
         raw = (
             raw.replace("‘", "'")
-               .replace("’", "'")
-               .replace("“", '"')
-               .replace("”", '"')
-               .strip()
+                .replace("’", "'")
+                .replace("“", '"')
+                .replace("”", '"')
+                .strip()
         )
 
         if not raw.startswith("["):
-            st.error("⚠️ GPT returned non-JSON output. Check symbolic context.")
+            st.warning("⚠️ GPT returned content that does not begin with a JSON array.")
             return []
 
         agendas = json.loads(raw)
         return agendas
+
+    except Exception as e:
+        st.error(f"❌ Failed to parse agendas: {e}")
+        return []
+
 
     except Exception as e:
         st.error(f"❌ Failed to parse agendas: {e}")
