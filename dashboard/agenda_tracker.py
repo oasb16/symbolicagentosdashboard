@@ -34,12 +34,11 @@ def fetch_agendas():
         raw = response.choices[0].message.content.strip()
 
         # Clean GPT output
+        raw = res['choices'][0]['message']['content'].strip()
         if raw.startswith("```"):
-            raw = raw.split("```")[1] if "```" in raw else raw
+            raw = raw.split("```")[1]
         raw = raw.replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"')
-
-        agendas = json.loads(raw)
-        return agendas
+        return json.loads(raw)
 
     except Exception as e:
         st.error("Failed to parse agendas: " + str(e))
