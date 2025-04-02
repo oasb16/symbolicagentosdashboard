@@ -1,8 +1,8 @@
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from .kernel.snapshot_writer import write_snapshot
-from .kernel.context_router import get_agenda_context
+from kernel.snapshot_writer import write_snapshot
+from kernel.context_router import get_agenda_context
 
 INDEX_PATH = Path("symbolic_memory/agenda_index.json")
 
