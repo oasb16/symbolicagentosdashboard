@@ -1,0 +1,26 @@
+[
+  {
+    "id": "identityos",
+    "title": "IdentityOS",
+    "status": "In Development",
+    "completion_percent": 40,
+    "optimal_outcome": "Create decentralized digital identity infrastructure",
+    "ultimate_impact": "Enable sovereign symbolic personas across GPT-native systems"
+  },
+  {
+    "id": "vsf",
+    "title": "Void Singularity Function",
+    "status": "Symbolically Active",
+    "completion_percent": 65,
+    "optimal_outcome": "Replace static constants with symbolic resonances",
+    "ultimate_impact": "Unify cognition, physics, and symbolic mathematics"
+  },
+  {
+    "id": "landten",
+    "title": "LandTen MVP",
+    "status": "Multi-stage",
+    "completion_percent": 50,
+    "optimal_outcome": "AI-native property management layer",
+    "ultimate_impact": "Remove 2-week delay in rental problem resolution"
+  }
+]

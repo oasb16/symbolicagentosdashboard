@@ -1,29 +1,17 @@
-# symbolicagentosdashboard
+# AGENDΔ_CORE Symbolic Memory Dashboard
 
-This is the AGENDΔ_CORE symbolic agenda dashboard for tracking and prioritizing agendas across the Cognitive OS.
+This Streamlit dashboard dynamically loads symbolic agendas from a persistent memory file and fetches GPT-aligned summaries using identity-bound prompts.
 
-## 🧠 Features
+## 💡 Key Features
 
-- Smart symbolic agenda tracker
-- Visual status and completion display
-- Easy deploy on Streamlit Cloud
+- Secure, symbolic agenda persistence (`agenda_store.json`)
+- Stateless OpenAI API prompt injection with symbolic memory
+- Safe prompt structure that avoids policy flags or hallucination
+- Fully Streamlit deployable
 
-## 🚀 Deployment
+## 🚀 Run
 
-1. Clone the repo
-2. Install requirements: `pip install -r requirements.txt`
-3. Run locally: `streamlit run dashboard/app.py`
-4. Or deploy on [Streamlit Cloud](https://streamlit.io/cloud)
-
-## 📁 Structure
-
-- `dashboard/agenda_tracker.py`: Agenda display logic
-- `dashboard/data/agendas.json`: All agenda data
-- `dashboard/app.py`: Main Streamlit app
-- `.streamlit/config.toml`: Config for Streamlit Cloud
-
-## 🧠 AGENDΔ_CORE Tracker
-
-This dashboard fetches live agenda state using OpenAI GPT via your `OPENAI_API_KEY`.
-
-## 🔐 Secrets (on Streamlit Cloud settings)
+```bash
+pip install -r requirements.txt
+streamlit run dashboard/app.py
+```
