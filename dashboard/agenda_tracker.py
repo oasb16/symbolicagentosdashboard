@@ -5,45 +5,48 @@ import json
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=True)
 def fetch_agendas():
     try:
-        query = (
-                "You are AGENDΔ_CORE. Pull the current symbolic agenda state for Elsohb Tnawas Rakmo "
-                "from all known cognitive threads. Return a JSON list of agenda items with:\n"
-                "- title\n- status\n- completion_percent\n- optimal_outcome\n- ultimate_impact\n\n"
-                "Respond only with raw JSON."
-            )
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {
                     "role": "system",
-                    "content": (
-                        "You are AGENDΔ_CORE, a symbolic cognition layer that tracks and prioritizes "
-                        "live agendas of a Cognitive OS. Respond with pure JSON only."
-                    )
+                    "content": "You are AGENDΔ_CORE, a symbolic cognition layer that tracks user agendas. Output only raw JSON."
                 },
                 {
                     "role": "user",
-                    "content": query
+                    "content": (
+                        "Return a valid JSON list of current agendas. Each agenda must include:\n"
+                        "- title\n- status\n- completion_percent\n"
+                        "- optimal_outcome\n- ultimate_impact\n"
+                        "No explanation, no markdown, no wrapping. Just pure JSON."
+                    )
                 }
             ]
         )
 
         raw = response.choices[0].message.content.strip()
+        st.code(raw, language='json')  # 🔍 For live debug visibility
 
-        st.write(raw)
-
-        # Clean GPT output
+        # 🧼 Sanitize possible markdown wrappers and smart quotes
         if raw.startswith("```"):
-            raw = raw.split("```")[1]
-        raw = raw.replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"')
-        return json.loads(raw)
+            raw = raw.split("```")[1].strip()
+
+        raw = (
+            raw.replace("‘", "'").replace("’", "'")
+                .replace("“", '"').replace("”", '"')
+                .strip()
+        )
+
+        agendas = json.loads(raw)
+        return agendas
 
     except Exception as e:
-        st.error("Failed to parse agendas: " + str(e))
+        st.error(f"❌ Failed to parse agendas: {e}")
         return []
+
 
 def generate_agenda_ui():
     st.title("🧠 AGENDΔ_CORE: Live Agenda Tracker")
