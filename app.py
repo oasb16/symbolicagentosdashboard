@@ -165,8 +165,16 @@ def gpt_agenda_input():
                 response = openai.chat.completions.create(
                     model="gpt-4o",
                     messages=[
-                        {"role": "system", "content": "You are AGENDΔ_CORE, a symbolic agenda architect."},
-                        {"role": "user", "content": f"Generate a JSON agenda object for: {idea}"}
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are AGENDΔ_CORE, a symbolic agenda architect. "
+                                "Output a compact JSON object ONLY with these fields: "
+                                "'title', 'status', 'completion_percent', 'symbolic_weight'. "
+                                "Example: {\"title\": \"IdentityOS\", \"status\": \"In Progress\", \"completion_percent\": 65, \"symbolic_weight\": 9}"
+                            )
+                        },
+                        {"role": "user", "content": f"Generate a symbolic agenda for: {idea}"}
                     ]
                 )
                 raw = response.choices[0].message.content.strip()
@@ -180,7 +188,6 @@ def gpt_agenda_input():
                 index[aid]["last_updated"] = now
                 save_index(index)
                 st.success(f"✅ Agenda '{parsed.get('title', 'Generated')}' added.")
-
             except Exception as e:
                 st.error(f"GPT failed: {e}")
 
