@@ -11,41 +11,32 @@ def assess_input_for_os_integrity(agenda_id, index):
     return {"status": "ok", "reason": "Stub placeholder for now"}
 
 def check_agenda_health():
+    if not INDEX_PATH.exists():
+        return {}
+
     with open(INDEX_PATH) as f:
         index = json.load(f)
 
+    alerts = {}
     now = datetime.utcnow()
-    alerts = []
 
     for aid, data in index.items():
+        last_str = data.get("last_updated")
+        if not last_str:
+            alerts[aid] = "⚠️ Missing timestamp"
+            continue
+
         try:
-            last_str = data.get("last_updated")
-            if not last_str:
-                alerts[aid] = "No timestamp"
-                continue
-
-            try:
-                last = datetime.fromisoformat(last_str)
-            except Exception:
-                alerts[aid] = "Invalid timestamp format"
-                continue
-
+            last = datetime.fromisoformat(last_str)
         except Exception:
-            alerts.append({"aid": aid, "issue": "Missing last_updated timestamp"})
+            alerts[aid] = "⚠️ Invalid timestamp format"
             continue
 
         hours_old = (now - last).total_seconds() / 3600
-        if hours_old > FRESHNESS_HOURS:
-            alerts.append({"aid": aid, "issue": f"Stale agenda ({int(hours_old)}h old)"})
-
-        if data.get("completion_percent") is not None:
-            if int(data["completion_percent"]) in [0, 100]:
-                continue  # skip edge states
-            if data["completion_percent"] < ACTIVITY_DECAY_THRESHOLD:
-                alerts.append({"aid": aid, "issue": f"Low progress ({data['completion_percent']}%)"})
+        if hours_old > 72:
+            alerts[aid] = f"⚠️ Agenda stale: {int(hours_old)}h old"
 
     return alerts
-
 
 # Test output
 if __name__ == "__main__":
