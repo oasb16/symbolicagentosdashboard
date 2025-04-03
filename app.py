@@ -17,8 +17,6 @@ st.set_page_config(page_title="🧠 AGENDΔ_CORE: Symbolic Agenda Tracker", layo
 
 view_mode = st.sidebar.selectbox("🧭 View Mode", ["📊 Tracker", "📂 Snapshots", "🔥 Priority Heatmap"])
 
-st.sidebar.button("🛰 Sync to S3")
-
 if st.sidebar.button("🛰 Sync to S3"):
     sync_all()
     st.sidebar.success("Symbolic memory synced to S3.")
