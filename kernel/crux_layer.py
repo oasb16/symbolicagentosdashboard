@@ -7,8 +7,9 @@ SNAPSHOT_DIR = Path("agenda_snapshots")
 from kernel.pulse_monitor import check_agenda_health
 
 alerts = check_agenda_health()
-for alert in alerts:
-    print(f"⚠️ {alert['aid']}: {alert['issue']}")
+for aid, issue in alerts.items():
+    print(f"⚠️ {aid}: {issue}")
+
 
 def extract_crux(agenda_id):
     snaps = sorted(SNAPSHOT_DIR.glob(f"{agenda_id}_v*.md"))
