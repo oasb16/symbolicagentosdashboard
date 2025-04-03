@@ -87,6 +87,8 @@ elif view_mode == "📂 Snapshots":
 
 # Heatmap view
 elif view_mode == "🔥 Priority Heatmap":
+    from dashboard.meta_log_viewer import show_log_viewer
+    show_log_viewer()
     agenda_weight_ui()
 
 # ----------------------------
