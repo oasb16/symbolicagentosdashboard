@@ -36,14 +36,14 @@
       "ultimate_impact": "Self-reflective GPT chains coordinating autonomously"
     },
     "landten": {
-      "title": "LandTen AgentOps",
-      "status": "Completed",
-      "completion_percent": 100,
-      "symbolic_weight": 5,
-      "last_updated": "2025-03-30T12:45:00Z",
-      "optimal_outcome": "Decentralized AI-native property troubleshooting",
-      "ultimate_impact": "Eliminates human PM overhead, uses pure protocol"
-    },
+        "title": "LandTen AgentOps",
+        "status": "In Integration",
+        "completion_percent": 62,
+        "symbolic_weight": 5,
+        "last_updated": "2025-04-02T20:10:00Z",
+        "optimal_outcome": "Decentralized AI-native property troubleshooting",
+        "ultimate_impact": "Eliminates human PM overhead, uses pure protocol"
+      },
     "streamtoolkit": {
       "title": "StreamToolkit 3.0",
       "status": "In Progress",
