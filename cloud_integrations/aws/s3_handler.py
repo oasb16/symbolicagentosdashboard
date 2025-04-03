@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 # ---- CONFIG ----
-BUCKET_NAME = os.environ.get("S3_BUCKET", "gpt4o-wrapper")
+BUCKET_NAME = os.environ.get("S3_BUCKET", "symbolic-agent-bucket")
 REGION_NAME = os.environ.get("AWS_REGION", "us-east-1")
 AGENDA_KEY = "agenda_index.json"
 AGENDA_PATH = Path("symbolic_memory/agenda_index.json")
