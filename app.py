@@ -94,6 +94,7 @@ def save_index(index):
 
 def add_agenda_form():
     work_on_agenda = st.sidebar.selectbox("🧭 WORK ON AGENDA", ["✅ Select Action","🔥 Add Agenda", "📊 Delete Agenda", "📂 Edit Agenda"])
+    index = load_index()
     if work_on_agenda == "🔥 Add Agenda":
         st.sidebar.markdown("### ➕ Add New Agenda")
         with st.sidebar.form("new_agenda_form"):
@@ -106,7 +107,6 @@ def add_agenda_form():
             if submitted and title:
                 aid = str(uuid.uuid4())[:8]
                 now = datetime.utcnow().isoformat()
-                index = load_index()
                 index[aid] = {
                     "title": title,
                     "status": status,
