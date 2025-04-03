@@ -9,6 +9,7 @@ from kernel.guard.meta_guard import MetaGuard
 
 INDEX_PATH = Path("symbolic_memory/agenda_index.json")
 LOG_PATH = Path("logs/symbolic_logbook.csv")
+Path("logs").mkdir(exist_ok=True)  # Ensure log directory exists
 
 
 def load_index():
@@ -41,7 +42,7 @@ def update_agenda(agenda_id: str, percent: int = None, status: str = None, conte
     save_index(index)
 
     # 🧠 SymbolicOS Integration Hooks
-# 🧠 SymbolicOS Integration Hooks
+    # 🧠 SymbolicOS Integration Hooks
     if context:
         agenda_context = context  # keep as dict
         crux = extract_crux(agenda_context)
@@ -53,7 +54,10 @@ def update_agenda(agenda_id: str, percent: int = None, status: str = None, conte
         guard.export_json()
     else:
         print(f"[⚠️] No context passed to update_agenda() for {agenda_id}")
-        
+    
+    log_entry = f"{agenda['last_updated']},{agenda_id},update,{';'.join(changes)},crux={crux['insight']}\n"
+    with open(LOG_PATH, "a") as log:
+        log.write(log_entry)        
 
     log_entry = f"{agenda['last_updated']},{agenda_id},update,{';'.join(changes)}"
     if context:
