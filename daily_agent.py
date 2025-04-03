@@ -12,11 +12,9 @@ from kernel.identity.identity_pin import IdentityPin
 AGENDA_PATH = "symbolic_memory/agenda_index.json"
 LOG_PATH = "logs/daily_reflection.json"
 
-
 def load_agenda_index():
     with open(AGENDA_PATH, "r") as f:
         return json.load(f)
-
 
 def daily_reflect():
     index = load_agenda_index()
@@ -25,14 +23,16 @@ def daily_reflect():
 
     for aid, data in index.items():
         context = get_agenda_context(aid)
+
         crux = extract_crux(json.dumps(context))
         pulse = assess_input_for_os_integrity(json.dumps(context))
-        identity = IdentityPin(aid)
+        identity = IdentityPin(aid).to_dict()
         guard = MetaGuard(aid)
         audit = guard.audit(json.dumps(context))
         guard.export_json()
 
         snapshot_agenda(aid, context)  # Versioned backup
+
         if pulse.get("status") == "drifting":
             replant(f"cogseeds/{aid}_seed.json")
 
@@ -41,7 +41,7 @@ def daily_reflect():
             "timestamp": now,
             "crux": crux,
             "pulse": pulse,
-            "identity": identity.to_dict(),
+            "identity": identity,
             "audit": audit
         })
 
@@ -49,7 +49,6 @@ def daily_reflect():
         json.dump(reflections, f, indent=2)
 
     print("✅ Daily reflection completed and saved.")
-
 
 if __name__ == "__main__":
     daily_reflect()

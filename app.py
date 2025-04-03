@@ -5,6 +5,10 @@ from kernel.context_router import get_agenda_context
 from kernel.agenda_updater import update_agenda
 from kernel.snapshot_writer import write_snapshot
 from kernel.crux_layer import extract_crux
+import uuid
+from datetime import datetime
+import openai
+import os
 
 st.set_page_config(page_title="🧠 AGENDΔ_CORE: Symbolic Agenda Tracker", layout="wide")
 st.title("🧠 AGENDΔ_CORE: Symbolic Agenda Tracker")
@@ -52,3 +56,74 @@ for aid, meta in agenda_index.items():
             if snap and reflection.strip():
                 write_snapshot(aid, reflection.strip())
                 st.success("Snapshot saved.")
+
+# ----------------------------
+# Add Agenda Sidebar Form
+# ----------------------------
+def load_index():
+    if index_path.exists():
+        with open(index_path) as f:
+            return json.load(f)
+    return {}
+
+def save_index(index):
+    with open(index_path, "w") as f:
+        json.dump(index, f, indent=2)
+
+def add_agenda_form():
+    st.sidebar.markdown("### ➕ Add New Agenda")
+    with st.sidebar.form("new_agenda_form"):
+        title = st.text_input("Agenda Title")
+        status = st.selectbox("Initial Status", ["Not Started", "In Progress", "Completed"])
+        percent = st.slider("Completion %", 0, 100, 0)
+        symbolic_weight = st.slider("Symbolic Weight", 1, 10, 5)
+
+        submitted = st.form_submit_button("Add Agenda")
+        if submitted and title:
+            aid = str(uuid.uuid4())[:8]
+            now = datetime.utcnow().isoformat()
+            index = load_index()
+            index[aid] = {
+                "title": title,
+                "status": status,
+                "completion_percent": percent,
+                "symbolic_weight": symbolic_weight,
+                "last_updated": now
+            }
+            save_index(index)
+            st.success(f"✅ Agenda '{title}' added.")
+
+def gpt_agenda_input():
+    st.sidebar.markdown("### 🤖 GPT-Powered Agenda Generator")
+    openai.api_key = os.getenv("OPENAI_API_KEY", "")  # use env key
+
+    with st.sidebar.form("gpt_agenda_form"):
+        idea = st.text_input("Describe symbolic initiative")
+        run = st.form_submit_button("Generate via GPT")
+
+        if run and idea:
+            try:
+                response = openai.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "You are AGENDΔ_CORE, a symbolic agenda architect."},
+                        {"role": "user", "content": f"Generate a JSON agenda object for: {idea}"}
+                    ]
+                )
+                raw = response.choices[0].message.content.strip()
+                st.code(raw, language="json")
+
+                parsed = json.loads(raw)
+                aid = str(uuid.uuid4())[:8]
+                now = datetime.utcnow().isoformat()
+                index = load_index()
+                index[aid] = parsed
+                index[aid]["last_updated"] = now
+                save_index(index)
+                st.success(f"✅ Agenda '{parsed.get('title', 'Generated')}' added.")
+
+            except Exception as e:
+                st.error(f"GPT failed: {e}")
+
+add_agenda_form()
+gpt_agenda_input()
