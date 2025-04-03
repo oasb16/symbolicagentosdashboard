@@ -57,7 +57,7 @@ if view_mode == "📊 Tracker":
                 new_percent = st.slider("Completion %", 0, 100, meta['completion_percent'])
                 submitted = st.form_submit_button("Update")
                 if submitted:
-                    update_agenda(aid, percent=new_percent, status=new_status)
+                    update_agenda(aid, percent=new_percent, status=new_status, context=context)
                     st.success("Agenda updated.")
 
             with st.form(f"reflect_{aid}"):
