@@ -116,6 +116,41 @@ def add_agenda_form():
                 }
                 save_index(index)
                 st.success(f"✅ Agenda '{title}' added.")
+    elif work_on_agenda == "📊 Delete Agenda":
+        st.sidebar.markdown("### 🗑️ Delete Agenda")
+        if index:
+            aid = st.sidebar.selectbox("Select Agenda to Delete", list(index.keys()))
+            if st.sidebar.button("Delete"):
+                title = index[aid]["title"]
+                del index[aid]
+                save_index(index)
+                st.success(f"🗑️ Agenda '{title}' deleted.")
+        else:
+            st.sidebar.warning("⚠️ No agendas to delete.")
+
+    elif work_on_agenda == "📂 Edit Agenda":
+        st.sidebar.markdown("### ✏️ Edit Agenda")
+        if index:
+            aid = st.sidebar.selectbox("Select Agenda to Edit", list(index.keys()))
+            agenda = index[aid]
+            with st.sidebar.form("edit_agenda_form"):
+                title = st.text_input("Agenda Title", agenda["title"])
+                status = st.selectbox("Status", ["Not Started", "In Progress", "Completed"], index=["Not Started", "In Progress", "Completed"].index(agenda["status"]))
+                percent = st.slider("Completion %", 0, 100, agenda["completion_percent"])
+                symbolic_weight = st.slider("Symbolic Weight", 1, 10, agenda["symbolic_weight"])
+                submitted = st.form_submit_button("Save Changes")
+                if submitted:
+                    agenda.update({
+                        "title": title,
+                        "status": status,
+                        "completion_percent": percent,
+                        "symbolic_weight": symbolic_weight,
+                        "last_updated": datetime.utcnow().isoformat()
+                    })
+                    save_index(index)
+                    st.success(f"✏️ Agenda '{title}' updated.")
+        else:
+            st.sidebar.warning("⚠️ No agendas to edit.")
 
 def gpt_agenda_input():
     st.sidebar.markdown("### 🤖 GPT-Powered Agenda Generator")
