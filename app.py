@@ -180,12 +180,12 @@ def gpt_agenda_input():
                 raw = response.choices[0].message.content.strip()
                 raw = re.sub(r"```(?:json)?\n?", "", raw).strip("` \n")
                 raw = raw.replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"').strip()
-                if not raw.startswith("["):
-                    st.warning("⚠️ GPT returned non-JSON agenda output.")
-                    st.code(raw, language='json')
-                    return []
-                else:
-                    st.code(raw, language='json')
+                # if not raw.startswith("["):
+                #     st.warning("⚠️ GPT returned non-JSON agenda output.")
+                #     st.code(raw, language='json')
+                #     return []
+                # else:
+                #     st.code(raw, language='json')
                 parsed = json.loads(raw)
                 aid = str(uuid.uuid4())[:8]
                 now = datetime.utcnow().isoformat()
