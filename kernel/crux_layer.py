@@ -10,11 +10,15 @@ alerts = check_agenda_health()
 for aid, issue in alerts.items():
     print(f"⚠️ {aid}: {issue}")
 
-
 def extract_crux(agenda_id):
     snaps = sorted(SNAPSHOT_DIR.glob(f"{agenda_id}_v*.md"))
+
+    if not snaps:
+        return {"insight": "⚠️ No snapshots found", "conflict": None, "priority_shift": None}
+
     if len(snaps) < 2:
-        return {"insight": "Not enough history", "conflict": None, "priority_shift": None}
+        return {"insight": "🟡 Only one snapshot available", "conflict": None, "priority_shift": None}
+
 
     with open(snaps[-2]) as f:
         prev = f.readlines()
