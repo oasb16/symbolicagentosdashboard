@@ -31,16 +31,6 @@ def sync_all():
     upload_agenda()
     upload_snapshots()
 
-import boto3
-import os
-from pathlib import Path
-
-BUCKET = os.getenv("S3_BUCKET")
-REGION = os.getenv("AWS_REGION", "us-east-1")
-AGENDA_FILE = Path("symbolic_memory/agenda_index.json")
-
-s3 = boto3.client("s3", region_name=REGION)
-
 def download_agenda():
     s3.download_file(BUCKET, f"memory/{AGENDA_FILE.name}", str(AGENDA_FILE))
     print("✅ Agenda index downloaded from S3")
