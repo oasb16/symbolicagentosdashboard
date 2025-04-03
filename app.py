@@ -15,7 +15,7 @@ import os
 st.set_page_config(page_title="🧠 AGENDΔ_CORE: Symbolic Agenda Tracker", layout="wide")
 
 
-view_mode = st.sidebar.selectbox("🧭 View Mode", ["📊 Tracker", "📂 Snapshots", "🔥 Priority Heatmap"])
+view_mode = st.sidebar.selectbox("🧭 View Mode", ["🔥 Priority Heatmap", "📊 Tracker", "📂 Snapshots"])
 
 if st.sidebar.button("🛰 Sync to S3"):
     sync_all()
