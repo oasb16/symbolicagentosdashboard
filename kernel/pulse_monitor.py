@@ -21,7 +21,7 @@ def check_agenda_health():
     now = datetime.utcnow()
 
     for aid, data in index.items():
-        last_str = data.get("last_updated")
+        last_str = data.get("last_updated", None)
         if not last_str:
             alerts[aid] = "⚠️ Missing timestamp"
             continue
@@ -32,9 +32,12 @@ def check_agenda_health():
             alerts[aid] = "⚠️ Invalid timestamp format"
             continue
 
-        hours_old = (now - last).total_seconds() / 3600
-        if hours_old > 72:
-            alerts[aid] = f"⚠️ Agenda stale: {int(hours_old)}h old"
+        try:
+            hours_old = (now - last).total_seconds() / 3600
+            if hours_old > 72:
+                alerts[aid] = f"⚠️ Agenda stale: {int(hours_old)}h old"
+        except Exception as e:
+            alerts[aid] = f"⚠️ Could not compute time delta: {e}"
 
     return alerts
 
