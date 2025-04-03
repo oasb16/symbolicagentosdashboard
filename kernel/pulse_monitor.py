@@ -7,7 +7,9 @@ INDEX_PATH = Path("symbolic_memory/agenda_index.json")
 FRESHNESS_HOURS = 48
 ACTIVITY_DECAY_THRESHOLD = 10  # percent stagnation
 
-
+def assess_input_for_os_integrity(agenda_id, index):
+    return {"status": "ok", "reason": "Stub placeholder for now"}
+    
 def check_agenda_health():
     with open(INDEX_PATH) as f:
         index = json.load(f)
