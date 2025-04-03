@@ -1,20 +1,36 @@
 import streamlit as st
 import json
 from pathlib import Path
+from datetime import datetime
+import uuid
+import openai
+import os
+
 from kernel.context_router import get_agenda_context
 from kernel.agenda_updater import update_agenda
 from kernel.snapshot_writer import write_snapshot
 from kernel.crux_layer import extract_crux
 from viewer import streamlit_snapshot_viewer
 from cloud_integrations.aws.s3_sync_hooks import sync_all, download_agenda
-import uuid
-from datetime import datetime
-import openai
-import os
+from dashboard.agenda_weight_ui import agenda_weight_ui
 
 st.set_page_config(page_title="🧠 AGENDΔ_CORE: Symbolic Agenda Tracker", layout="wide")
 
+# Constants
+INDEX_PATH = Path("symbolic_memory/agenda_index.json")
 
+# Load/save helpers
+def load_index():
+    if INDEX_PATH.exists():
+        with open(INDEX_PATH) as f:
+            return json.load(f)
+    return {}
+
+def save_index(index):
+    with open(INDEX_PATH, "w") as f:
+        json.dump(index, f, indent=2)
+
+# Sync buttons
 view_mode = st.sidebar.selectbox("🧭 View Mode", ["🔥 Priority Heatmap", "📊 Tracker", "📂 Snapshots"])
 
 if st.sidebar.button("🛰 Sync to S3"):
@@ -25,33 +41,26 @@ if st.sidebar.button("🔁 Restore from S3"):
     download_agenda()
     st.success("Agenda restored from S3. Refresh to view.")
 
+# Tracker View
 if view_mode == "📊 Tracker":
     st.title("🧠 AGENDΔ_CORE: Symbolic Agenda Tracker")
+    index = load_index()
 
-    index_path = Path("symbolic_memory/agenda_index.json")
-    if not index_path.exists():
-        st.error("Agenda index not found.")
-        st.stop()
-
-    with open(index_path) as f:
-        agenda_index = json.load(f)
-
-    for aid, meta in agenda_index.items():
-        with st.expander(f"📌 {meta['title']} [{meta['status']} - {meta['completion_percent']}%]", expanded=False):
+    for aid, meta in index.items():
+        with st.expander(f"📌 {meta['title']} [{meta['status']} - {meta['completion_percent']}%]"):
             context = get_agenda_context(aid)
+            crux = extract_crux(context)
 
-            crux = extract_crux(aid)
             st.markdown(f"**Symbolic Insight:** {crux['insight']}")
-            if crux['conflict']:
+            if crux.get("conflict"):
                 st.warning("⚠️ Conflict detected.")
-            if crux['priority_shift']:
+            if crux.get("priority_shift"):
                 st.info("🔀 Priority shift noted.")
 
             st.markdown(f"**Optimal Outcome:** {meta.get('optimal_outcome', '—')}")
             st.markdown(f"**Ultimate Impact:** {meta.get('ultimate_impact', '—')}")
 
-            if context['last_snapshot']:
-                st.markdown("---")
+            if context.get('last_snapshot'):
                 st.markdown("### Last Reflection")
                 st.markdown(context['last_snapshot'])
 
@@ -72,37 +81,28 @@ if view_mode == "📊 Tracker":
                     write_snapshot(aid, reflection.strip())
                     st.success("Snapshot saved.")
 
+# Snapshot view
 elif view_mode == "📂 Snapshots":
     streamlit_snapshot_viewer()
 
+# Heatmap view
 elif view_mode == "🔥 Priority Heatmap":
-    from dashboard.agenda_weight_ui import agenda_weight_ui
     agenda_weight_ui()
 
 # ----------------------------
-# Add Agenda Sidebar Form
+# Add/Edit/Delete Agenda Sidebar
 # ----------------------------
-def load_index():
-    if index_path.exists():
-        with open(index_path) as f:
-            return json.load(f)
-    return {}
-
-def save_index(index):
-    with open(index_path, "w") as f:
-        json.dump(index, f, indent=2)
-
 def add_agenda_form():
-    work_on_agenda = st.sidebar.selectbox("🧭 WORK ON AGENDA", ["✅ Select Action","🔥 Add Agenda", "📊 Delete Agenda", "📂 Edit Agenda"])
+    action = st.sidebar.selectbox("🧭 WORK ON AGENDA", ["✅ Select Action", "🔥 Add Agenda", "📊 Delete Agenda", "📂 Edit Agenda"])
     index = load_index()
-    if work_on_agenda == "🔥 Add Agenda":
+
+    if action == "🔥 Add Agenda":
         st.sidebar.markdown("### ➕ Add New Agenda")
         with st.sidebar.form("new_agenda_form"):
             title = st.text_input("Agenda Title")
             status = st.selectbox("Initial Status", ["Not Started", "In Progress", "Completed"])
             percent = st.slider("Completion %", 0, 100, 0)
             symbolic_weight = st.slider("Symbolic Weight", 1, 10, 5)
-
             submitted = st.form_submit_button("Add Agenda")
             if submitted and title:
                 aid = str(uuid.uuid4())[:8]
@@ -116,7 +116,8 @@ def add_agenda_form():
                 }
                 save_index(index)
                 st.success(f"✅ Agenda '{title}' added.")
-    elif work_on_agenda == "📊 Delete Agenda":
+
+    elif action == "📊 Delete Agenda":
         st.sidebar.markdown("### 🗑️ Delete Agenda")
         if index:
             aid = st.sidebar.selectbox("Select Agenda to Delete", list(index.keys()))
@@ -128,7 +129,7 @@ def add_agenda_form():
         else:
             st.sidebar.warning("⚠️ No agendas to delete.")
 
-    elif work_on_agenda == "📂 Edit Agenda":
+    elif action == "📂 Edit Agenda":
         st.sidebar.markdown("### ✏️ Edit Agenda")
         if index:
             aid = st.sidebar.selectbox("Select Agenda to Edit", list(index.keys()))
@@ -152,14 +153,15 @@ def add_agenda_form():
         else:
             st.sidebar.warning("⚠️ No agendas to edit.")
 
+# ----------------------------
+# GPT-Powered Generator
+# ----------------------------
 def gpt_agenda_input():
     st.sidebar.markdown("### 🤖 GPT-Powered Agenda Generator")
-    openai.api_key = os.getenv("OPENAI_API_KEY", "")  # use env key
-
+    openai.api_key = os.getenv("OPENAI_API_KEY", "")
     with st.sidebar.form("gpt_agenda_form"):
         idea = st.text_input("Describe symbolic initiative")
         run = st.form_submit_button("Generate via GPT")
-
         if run and idea:
             try:
                 response = openai.chat.completions.create(
@@ -169,9 +171,7 @@ def gpt_agenda_input():
                             "role": "system",
                             "content": (
                                 "You are AGENDΔ_CORE, a symbolic agenda architect. "
-                                "Output a compact JSON object ONLY with these fields: "
-                                "'title', 'status', 'completion_percent', 'symbolic_weight'. "
-                                "Example: {\"title\": \"IdentityOS\", \"status\": \"In Progress\", \"completion_percent\": 65, \"symbolic_weight\": 9}"
+                                "Output a JSON object with: 'title', 'status', 'completion_percent', 'symbolic_weight'."
                             )
                         },
                         {"role": "user", "content": f"Generate a symbolic agenda for: {idea}"}
@@ -179,7 +179,6 @@ def gpt_agenda_input():
                 )
                 raw = response.choices[0].message.content.strip()
                 st.code(raw, language="json")
-
                 parsed = json.loads(raw)
                 aid = str(uuid.uuid4())[:8]
                 now = datetime.utcnow().isoformat()
@@ -191,5 +190,6 @@ def gpt_agenda_input():
             except Exception as e:
                 st.error(f"GPT failed: {e}")
 
+# Run Forms
 add_agenda_form()
 gpt_agenda_input()
