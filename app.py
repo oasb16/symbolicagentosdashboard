@@ -6,7 +6,7 @@ from kernel.agenda_updater import update_agenda
 from kernel.snapshot_writer import write_snapshot
 from kernel.crux_layer import extract_crux
 from viewer import streamlit_snapshot_viewer
-from cloud_integrations.aws.s3_sync_hooks import sync_all
+from cloud_integrations.aws.s3_sync_hooks import sync_all, download_agenda
 import uuid
 from datetime import datetime
 import openai
@@ -20,6 +20,10 @@ view_mode = st.sidebar.selectbox("🧭 View Mode", ["🔥 Priority Heatmap", "�
 if st.sidebar.button("🛰 Sync to S3"):
     sync_all()
     st.sidebar.success("Symbolic memory synced to S3.")
+
+if st.sidebar.button("🔁 Restore from S3"):
+    download_agenda()
+    st.success("Agenda restored from S3. Refresh to view.")
 
 if view_mode == "📊 Tracker":
     st.title("🧠 AGENDΔ_CORE: Symbolic Agenda Tracker")
