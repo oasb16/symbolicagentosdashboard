@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime
 import uuid
 import openai
-import os
+import os, re
 
 from kernel.context_router import get_agenda_context
 from kernel.agenda_updater import update_agenda
@@ -178,7 +178,12 @@ def gpt_agenda_input():
                     ]
                 )
                 raw = response.choices[0].message.content.strip()
-                st.code(raw, language="json")
+                st.code(raw, language='json')
+                raw = re.sub(r"```(?:json)?\n?", "", raw).strip("` \n")
+                raw = raw.replace("‘", "'").replace("’", "'").replace("“", '"').replace("”", '"').strip()
+                if not raw.startswith("["):
+                    st.warning("⚠️ GPT returned non-JSON agenda output.")
+                    return []
                 parsed = json.loads(raw)
                 aid = str(uuid.uuid4())[:8]
                 now = datetime.utcnow().isoformat()
