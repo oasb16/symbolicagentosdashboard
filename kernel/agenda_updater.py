@@ -21,7 +21,7 @@ def save_index(index):
         json.dump(index, f, indent=2)
 
 
-def update_agenda(agenda_id: str, percent: int = None, status: str = None):
+def update_agenda(agenda_id: str, percent: int = None, status: str = None, context: dict = None):
     index = load_index()
     if agenda_id not in index:
         raise ValueError(f"Agenda ID '{agenda_id}' not found")
@@ -41,23 +41,37 @@ def update_agenda(agenda_id: str, percent: int = None, status: str = None):
     save_index(index)
 
     # 🧠 SymbolicOS Integration Hooks
-    agenda_context = json.dumps(agenda, indent=2)
-    crux = extract_crux(agenda_context)
-    pulse = assess_input_for_os_integrity(agenda_context)
-    identity = IdentityPin(agenda_id)
-    guard = MetaGuard(agenda_id)
-    audit = guard.audit(agenda_context)
-    guard.export_json()
+# 🧠 SymbolicOS Integration Hooks
+    if context:
+        agenda_context = context  # keep as dict
+        crux = extract_crux(agenda_context)
+        pulse = assess_input_for_os_integrity(agenda_context)
+        
+        identity = IdentityPin(agenda_id)
+        guard = MetaGuard(agenda_id)
+        audit = guard.audit(agenda_context)
+        guard.export_json()
+    else:
+        print(f"[⚠️] No context passed to update_agenda() for {agenda_id}")
+        
 
-    log_entry = f"{agenda['last_updated']},{agenda_id},update,{';'.join(changes)},crux={crux['insight']}\n"
+    log_entry = f"{agenda['last_updated']},{agenda_id},update,{';'.join(changes)}"
+    if context:
+        log_entry += f",crux={crux['insight']}"
+
     with open(LOG_PATH, "a") as log:
-        log.write(log_entry)
+        log.write(log_entry + "\n")
 
     print(f"✅ Updated {agenda_id}: {', '.join(changes)}")
-    print(f"🧠 Crux: {crux['insight']}")
-    print(f"🔍 Pulse: {pulse}")
-    print(f"📛 Identity: {identity.to_dict()['alias']}")
-    print(f"🛡️ Logged to MetaGuard")
+
+    if context:
+        print(f"🧠 Crux: {crux['insight']}")
+        print(f"🔍 Pulse: {pulse}")
+        print(f"📛 Identity: {identity.to_dict()['alias']}")
+        print(f"🛡️ Logged to MetaGuard")
+    else:
+        print("⚠️ Skipped symbolic logging due to missing context.")
+
 
 
 # Example CLI use
