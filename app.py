@@ -93,27 +93,27 @@ def save_index(index):
         json.dump(index, f, indent=2)
 
 def add_agenda_form():
-    st.sidebar.markdown("### ➕ Add New Agenda")
-    with st.sidebar.form("new_agenda_form"):
-        title = st.text_input("Agenda Title")
-        status = st.selectbox("Initial Status", ["Not Started", "In Progress", "Completed"])
-        percent = st.slider("Completion %", 0, 100, 0)
-        symbolic_weight = st.slider("Symbolic Weight", 1, 10, 5)
+    with st.expander("### ➕ Add New Agenda", expanded=False):
+        with st.sidebar.form("new_agenda_form"):
+            title = st.text_input("Agenda Title")
+            status = st.selectbox("Initial Status", ["Not Started", "In Progress", "Completed"])
+            percent = st.slider("Completion %", 0, 100, 0)
+            symbolic_weight = st.slider("Symbolic Weight", 1, 10, 5)
 
-        submitted = st.form_submit_button("Add Agenda")
-        if submitted and title:
-            aid = str(uuid.uuid4())[:8]
-            now = datetime.utcnow().isoformat()
-            index = load_index()
-            index[aid] = {
-                "title": title,
-                "status": status,
-                "completion_percent": percent,
-                "symbolic_weight": symbolic_weight,
-                "last_updated": now
-            }
-            save_index(index)
-            st.success(f"✅ Agenda '{title}' added.")
+            submitted = st.form_submit_button("Add Agenda")
+            if submitted and title:
+                aid = str(uuid.uuid4())[:8]
+                now = datetime.utcnow().isoformat()
+                index = load_index()
+                index[aid] = {
+                    "title": title,
+                    "status": status,
+                    "completion_percent": percent,
+                    "symbolic_weight": symbolic_weight,
+                    "last_updated": now
+                }
+                save_index(index)
+                st.success(f"✅ Agenda '{title}' added.")
 
 def gpt_agenda_input():
     st.sidebar.markdown("### 🤖 GPT-Powered Agenda Generator")
