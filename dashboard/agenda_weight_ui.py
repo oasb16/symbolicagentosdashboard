@@ -23,7 +23,9 @@ def agenda_weight_ui():
             "Status": meta.get("status", "—"),
         })
 
-    df = pd.DataFrame(rows).sort_values("Symbolic Weight", ascending=False)
+    df = pd.DataFrame(rows)
+    df = df.rename(columns={"symbolic_weight": "Symbolic Weight"})
+    df = df.sort_values("Symbolic Weight", ascending=False)
 
     st.markdown("### 🔥 Symbolic Priority Heatmap")
     st.dataframe(df.style.background_gradient(cmap='YlOrRd'), use_container_width=True)
