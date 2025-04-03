@@ -12,6 +12,14 @@ for aid, issue in alerts.items():
 
 
 def extract_crux(agenda_id):
+
+    if not agenda or "completion_percent" not in agenda:
+        return {
+            "insight": "⚠️ Invalid agenda structure",
+            "conflict": False,
+            "priority_shift": False
+        }
+
     snaps = sorted(SNAPSHOT_DIR.glob(f"{agenda_id}_v*.md"))
     if len(snaps) < 2:
         return {"insight": "Not enough history", "conflict": None, "priority_shift": None}

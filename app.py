@@ -114,6 +114,12 @@ def add_agenda_form():
                     "symbolic_weight": symbolic_weight,
                     "last_updated": now
                 }
+                if not title.strip():
+                    st.error("Agenda title is required.")
+                    return
+                if percent < 0 or percent > 100:
+                    st.error("Completion percent must be between 0 and 100.")
+                    return
                 save_index(index)
                 st.success(f"✅ Agenda '{title}' added.")
 
@@ -124,6 +130,12 @@ def add_agenda_form():
             if st.sidebar.button("Delete"):
                 title = index[aid]["title"]
                 del index[aid]
+                if not title.strip():
+                    st.error("Agenda title is required.")
+                    return
+                if percent < 0 or percent > 100:
+                    st.error("Completion percent must be between 0 and 100.")
+                    return                
                 save_index(index)
                 st.success(f"🗑️ Agenda '{title}' deleted.")
         else:
@@ -148,6 +160,12 @@ def add_agenda_form():
                         "symbolic_weight": symbolic_weight,
                         "last_updated": datetime.utcnow().isoformat()
                     })
+                    if not title.strip():
+                        st.error("Agenda title is required.")
+                        return
+                    if percent < 0 or percent > 100:
+                        st.error("Completion percent must be between 0 and 100.")
+                        return
                     save_index(index)
                     st.success(f"✏️ Agenda '{title}' updated.")
         else:
