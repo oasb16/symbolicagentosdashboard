@@ -8,7 +8,7 @@ import os, re
 
 from kernel.context_router import get_agenda_context
 from kernel.agenda_updater import update_agenda
-from kernel.snapshot_writer import write_snapshot
+from kernel.snapshot_writer import write_snapshot, clean_old_snapshots
 from kernel.crux_layer import extract_crux
 from viewer import streamlit_snapshot_viewer
 from cloud_integrations.aws.s3_sync_hooks import sync_all, download_agenda
@@ -84,6 +84,9 @@ if view_mode == "📊 Tracker":
 # Snapshot view
 elif view_mode == "📂 Snapshots":
     streamlit_snapshot_viewer()
+    if st.button("🔁 Clean old snapshots from S3"):
+        clean_old_snapshots()
+        st.success("Cleaned Snapshots from S3. Refresh to view.")
 
 # Heatmap view
 elif view_mode == "🔥 Priority Heatmap":
@@ -212,6 +215,10 @@ def gpt_agenda_input():
                 index = load_index()
                 index[aid] = parsed
                 index[aid]["last_updated"] = now
+                for existing in index.values():
+                    if existing["title"].strip().lower() == parsed["title"].strip().lower():
+                        st.warning("⚠️ Agenda with this title already exists.")
+                        return
                 save_index(index)
                 st.success(f"✅ Agenda '{parsed.get('title', 'Generated')}' added.")
             except Exception as e:

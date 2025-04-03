@@ -50,8 +50,21 @@ def log_snapshot_action(agenda_id, version, timestamp):
     with open(LOGBOOK_PATH, "a") as f:
         f.write(entry)
 
+def clean_old_snapshots(days_old=30):
+    snap_dir = Path("snapshots")
+    if not snap_dir.exists(): return
+
+    now = datetime.utcnow().timestamp()
+    deleted = 0
+    for snap in snap_dir.glob("*.md"):
+        if now - snap.stat().st_mtime > days_old * 86400:
+            snap.unlink()
+            deleted += 1
+    print(f"🗑️ Deleted {deleted} outdated snapshots.")
+
 
 # Example CLI test
 if __name__ == "__main__":
     sample_reflection = "- GPT advised to isolate persona routing module.\n- Urgency: Moderate.\n- Next: Simulate symbolic identity bootstrap."
     write_snapshot("identityos", sample_reflection)
+    
