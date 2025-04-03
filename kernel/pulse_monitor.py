@@ -9,7 +9,7 @@ ACTIVITY_DECAY_THRESHOLD = 10  # percent stagnation
 
 def assess_input_for_os_integrity(agenda_id, index):
     return {"status": "ok", "reason": "Stub placeholder for now"}
-    
+
 def check_agenda_health():
     with open(INDEX_PATH) as f:
         index = json.load(f)
@@ -19,7 +19,17 @@ def check_agenda_health():
 
     for aid, data in index.items():
         try:
-            last = datetime.fromisoformat(data["last_updated"])
+            last_str = data.get("last_updated")
+            if not last_str:
+                alerts[aid] = "No timestamp"
+                continue
+
+            try:
+                last = datetime.fromisoformat(last_str)
+            except Exception:
+                alerts[aid] = "Invalid timestamp format"
+                continue
+
         except Exception:
             alerts.append({"aid": aid, "issue": "Missing last_updated timestamp"})
             continue
