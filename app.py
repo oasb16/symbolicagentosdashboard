@@ -93,7 +93,7 @@ def save_index(index):
         json.dump(index, f, indent=2)
 
 def add_agenda_form():
-    with st.expander("### ➕ Add New Agenda", expanded=False):
+    with st.expander("### ➕ Add New Agenda", expanded=True):
         with st.sidebar.form("new_agenda_form"):
             title = st.text_input("Agenda Title")
             status = st.selectbox("Initial Status", ["Not Started", "In Progress", "Completed"])
