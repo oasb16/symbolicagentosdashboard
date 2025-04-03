@@ -93,7 +93,7 @@ def save_index(index):
         json.dump(index, f, indent=2)
 
 def add_agenda_form():
-    work_on_agenda = st.sidebar.selectbox("🧭 add_agenda_form", ["🔥 Add Agenda", "📊 Delete Agenda", "📂 Edit Agenda"])
+    work_on_agenda = st.sidebar.selectbox("🧭 add_agenda_form", ["✅ Select Action","🔥 Add Agenda", "📊 Delete Agenda", "📂 Edit Agenda"])
     if work_on_agenda == "🔥 Add Agenda":
         st.sidebar.markdown("### ➕ Add New Agenda")
         with st.sidebar.form("new_agenda_form"):
